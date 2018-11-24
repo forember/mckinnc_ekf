@@ -10,8 +10,7 @@ namespace mckinnc_ekf {
 class NaiveSLAM {
   public:
     NaiveSLAM(const Covariance& modelCovariance,
-        const Observation& observationVariance,
-        double newLandmarkUncertaintyThreshold);
+        const Observation& observationVariance);
 
     void run(const Control& control,
         const std::vector<Observation>& observations,

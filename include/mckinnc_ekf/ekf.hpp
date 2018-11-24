@@ -3,16 +3,12 @@
 #include "mckinnc_ekf/common.hpp"
 
 #include <vector>
-#include <Eigen/Dense>
 
 /*! \file
  *  \brief EKF localization algorithm with support for na&iuml;ve SLAM.
  */
 
 namespace mckinnc_ekf {
-
-//! 3x3 matrix of doubles representing covariance of a 3-vector.
-typedef Eigen::Matrix3d Covariance;
 
 class EKF {
   public:

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <Eigen/Dense>
 
 /*! \file
  *  \brief Interchange structs and a debug output macro.
@@ -49,6 +50,9 @@ static double reduceAngle(double angle)
 {   
   return atan2(sin(angle), cos(angle));
 }
+
+//! 3x3 matrix of doubles representing covariance of a 3-vector.
+typedef Eigen::Matrix3d Covariance;
 
 //! Control input to EKF.
 struct Control {
