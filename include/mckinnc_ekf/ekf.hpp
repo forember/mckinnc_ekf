@@ -14,6 +14,8 @@ class EKF {
   public:
     EKF(const Covariance& modelCovariance,
         const Observation& observationVariance);
+    EKF(const Pose& initialPose, const Covariance& modelCovariance,
+        const Observation& observationVariance);
 
     //! Run a single update of the EKF localization.
     /*!

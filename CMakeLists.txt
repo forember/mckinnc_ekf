@@ -133,6 +133,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(naive_slam_node src/naive_slam_node.cpp src/naive_slam.cpp src/ekf.cpp)
 
+add_executable(test_ekf src/test_ekf.cpp src/ekf.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -147,6 +149,10 @@ add_executable(naive_slam_node src/naive_slam_node.cpp src/naive_slam.cpp src/ek
 target_link_libraries(naive_slam_node
   Eigen3::Eigen
   ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_ekf
+  Eigen3::Eigen
 )
 
 #############

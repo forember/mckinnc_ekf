@@ -14,6 +14,15 @@ EKF::EKF(const Covariance& modelCovariance,
         observationVariance.angle, observationVariance.signature)
 { }
 
+EKF::EKF(const Pose& initialPose, const Covariance& modelCovariance,
+    const Observation& observationVariance)
+  : mean_(initialPose),
+    covariance_(Covariance::Zero()),
+    modelCovariance_(modelCovariance),
+    observationCovariance_(observationVariance.range,
+        observationVariance.angle, observationVariance.signature)
+{ }
+
 // ### STATIC FUNCTIONS AND STRUCTS FOR EKF RUN ###############################
 
 //  Predict the robot motion (change in pose) since the last EKF run.
@@ -87,6 +96,15 @@ static PredictedObservation predictObservation(const Landmark& landmark,
         relativeY, relativeX, -1.0,
         0.0, 0.0, 0.0;
   predicted.jacobian /= rangeSquared;
+  traceStream("predicted.jacobian (sig " << predicted.signature << "): " << predicted.jacobian);
+  traceStream("predictedCovariance: " << predictedCovariance);
+  traceStream("predicted.jacobian * predictedCovariance: "
+      << (predicted.jacobian * predictedCovariance));
+  traceStream("innovation w/o observation covariance: "
+      << ((predicted.jacobian * predictedCovariance) * predicted.jacobian.transpose()));
+  traceStream("innovation for sig " << predicted.signature << ": "
+      << (((predicted.jacobian * predictedCovariance) * predicted.jacobian.transpose())
+        + observationCovariance));
   predicted.inverseInnovation = (((predicted.jacobian * predictedCovariance)
         * predicted.jacobian.transpose()) + observationCovariance).inverse();
   return predicted;
@@ -123,6 +141,11 @@ static CorrectionTerm calculateCorrectionTerm(const Observation& observation,
           reduceAngle(observation.angle - predicted.angle),
           observation.signature - predicted.signature;
     double uncertainty = (error.transpose() * predicted.inverseInnovation) * error;
+    traceStream("error " << j << ": " << error);
+    traceStream("predicted.inverseInnovation: " << predicted.inverseInnovation);
+    traceStream("error.transpose() * predicted.inverseInnovation: "
+        << error.transpose() * predicted.inverseInnovation);
+    traceStream("uncertainty " << j << ": " << uncertainty);
     if (uncertainty < likeliestLandmarkUncertainty) {
       likeliestLandmarkIndex = j;
       likeliestLandmarkError = error;
@@ -138,6 +161,14 @@ static CorrectionTerm calculateCorrectionTerm(const Observation& observation,
   correctionTerm.valid = true;
   const PredictedObservation& predicted
     = predictedObservations[likeliestLandmarkIndex];
+  traceStream("predictedObservations.size(): " << predictedObservations.size());
+  traceStream("likeliestLandmarkIndex: " << likeliestLandmarkIndex);
+  traceStream("predictedCovariance: " << predictedCovariance);
+  traceStream("predicted.jacobian: " << predicted.jacobian);
+  traceStream("predicted.jacobian.transpose(): " << predicted.jacobian.transpose());
+  traceStream("predicted.inverseInnovation: " << predicted.inverseInnovation);
+  traceStream("predictedCovariance * predicted.jacobian.transpose(): "
+      << predictedCovariance * predicted.jacobian.transpose());
   Covariance kalmanGain = (predictedCovariance * predicted.jacobian.transpose())
     * predicted.inverseInnovation;
   correctionTerm.mean = kalmanGain * likeliestLandmarkError;
